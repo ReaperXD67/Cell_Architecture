@@ -1,83 +1,61 @@
 # Cell Architecture
 
-This project explores a cell-based architecture for managing workers in a scalable system.  
-The idea is inspired by biological cells, where independent units communicate and coordinate to perform complex tasks.
+[![Python](https://img.shields.io/badge/Python-3.10+-3776ab?logo=python&logoColor=white)](./cellnet)
+[![Experiment](https://img.shields.io/badge/focus-worker_orchestration-16a085)](./cellnet/experiments)
+[![Metrics](https://img.shields.io/badge/output-comparative_metrics-4d8dff)](#experiment-output)
 
-The system focuses on:
-- organizing workers into structured cells
-- handling communication between components
-- monitoring performance metrics
-- comparing fixed vs dynamically spawned workers
+**A small systems lab for comparing fixed worker pools with cells that can spawn workers from observed pressure.**
 
-The goal is to understand how system design decisions affect performance and scalability.
+The project models a network of independent cells, message routing, worker creation, and runtime monitoring. It is deliberately compact: the goal is to make orchestration decisions observable and compare two strategies under the same workload.
 
----
+## Design
 
-## Structure
+```mermaid
+flowchart LR
+  TRAINER["Experiment runner"] --> NET["Cell network"]
+  NET --> ROUTER["Message router"]
+  ROUTER --> CELL["Base cells"]
+  MON["Monitor"] --> NET
+  MON --> SPAWN["Spawn manager"]
+  SPAWN --> CELL
+  MON --> OUT["Metrics plots"]
+```
 
-Main components:
+| Module | Responsibility |
+|---|---|
+| `core/base_cell.py` | Base worker/cell behavior |
+| `core/cell_network.py` | Cell registration and communication |
+| `core/message_router.py` | Dispatch to the appropriate worker |
+| `core/spawn_manager.py` | Dynamic worker creation policy |
+| `core/monitor.py` | Runtime measurements |
+| `experiments/` | Fixed and dynamic worker comparisons |
 
-- base_cell.py → defines the basic behavior of a cell
-- cell_network.py → manages communication between cells
-- message_router.py → routes messages to appropriate workers
-- spawn_manager.py → handles creation of workers
-- monitor.py → tracks metrics of workers
-- trainer.py → runs the architecture
+## Run the experiments
 
-The project also generates performance graphs:
+```bash
+git clone https://github.com/ReaperXD67/Cell_Architecture.git
+cd Cell_Architecture
+python -m venv .venv
+```
 
-- dynamic_worker_metrics.png
-- fixed_worker_metrics.png
+Activate the environment, install the packages required by the experiment modules, then run:
 
----
+```bash
+python -m cellnet.experiments.fixed_worker_experiment
+python -m cellnet.experiments.dynamic_worker_experiment
+```
 
-## How to run
+## Experiment output
 
-Clone the repo:
+| Fixed workers | Dynamic workers |
+|---|---|
+| ![Fixed worker metrics](./fixed_worker_metrics.png) | ![Dynamic worker metrics](./dynamic_worker_metrics.png) |
 
-git clone https://github.com/your-username/cell-architecture.git
+The images are experiment artifacts, not production benchmarks. Re-run both strategies on the same machine and workload before comparing them.
 
-Move into folder:
+## Next engineering steps
 
-cd cell-architecture
-
-Create virtual environment:
-
-python -m venv venv
-
-Activate environment:
-
-Windows:
-venv\Scripts\activate
-
-Mac/Linux:
-source venv/bin/activate
-
-Install dependencies:
-
-pip install -r requirements.txt
-
-Run:
-
-python trainer.py
-
----
-
-## Why I made this
-
-I wanted to experiment with a modular system design where different components act independently but still work together efficiently.
-
-This project helped me understand:
-- worker coordination
-- system scalability
-- modular design patterns
-- performance monitoring
-
----
-
-## Future improvements
-
-- better scaling logic
-- async communication
-- improved monitoring
-- visualization dashboard
+- Define explicit scale-up/scale-down thresholds and cooldowns.
+- Move message delivery to an asynchronous transport.
+- Record queue depth, saturation, task latency, and spawn cost in a machine-readable run artifact.
+- Add deterministic tests for routing and spawn policy behavior.
