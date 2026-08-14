@@ -1,4 +1,8 @@
-# Cell Architecture
+<div align="center">
+
+![Cell Architecture — animated project overview](./docs/assets/readme/cell-architecture-hero.svg)
+
+</div>
 
 [![Python](https://img.shields.io/badge/Python-3.10+-3776ab?logo=python&logoColor=white)](./cellnet)
 [![Experiment](https://img.shields.io/badge/focus-worker_orchestration-16a085)](./cellnet/experiments)
